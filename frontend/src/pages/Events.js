@@ -1,27 +1,25 @@
-import { useLoaderData, json } from "react-router-dom";
+import { useLoaderData, json, defer, Await } from "react-router-dom";
+import { Suspense } from "react";
+
 
 import EventsList from "../components/EventsList";
 
 function EventsPage() {
 
-    const response = useLoaderData();
-
-    // if (response.isError) {
-    //     return <p>{response.message}</p>
-    // }
-
-    const events = response.events;
+    const { events } = useLoaderData();
 
     return (
-        <>
-            {<EventsList events={events} />}
-        </>
-    )
+        <Suspense fallback={<p style={{ textAlign: "center" }}>Loading...</p>}>
+            <Await resolve={events}>
+                {(loadedEvents) => <EventsList events={loadedEvents} />}
+            </Await>
+        </Suspense>
+    );
 }
 
 export default EventsPage;
 
-export async function loader() {
+async function loadEvents() {
     /* we cant use react hooks in loader functions but we can use everything else
     in javascript and default browser setting in loaders */
 
@@ -45,4 +43,12 @@ export async function loader() {
     } else {
         return response;
     }
+}
+
+export function loader() {
+
+    return defer({
+        events: loadEvents()
+    });
+
 }
