@@ -28,7 +28,7 @@ export async function loader({ request, params }) {
     }
 }
 
-export async function action(params, request) {
+export async function action({params, request}) {
 
     const eventId = params.eventId;
 
